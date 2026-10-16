@@ -6,9 +6,13 @@ import java.util.Scanner;
 public class Key {
     public String username = "";
     public String password = "";
+    public String type = "";
     public void readData(String path) {
         try {
             Scanner scan = new Scanner(new File(path));
+            if(scan.hasNextLine()) {
+                type = scan.nextLine();
+            }
             if (scan.hasNextLine()) {
                 username = scan.nextLine();
             }
