@@ -1,4 +1,5 @@
 import subprocess
+import os
 from tkinter import messagebox
 
 def call(debug, key_path):
@@ -19,6 +20,7 @@ def call(debug, key_path):
         else:
             #for the moment:
             messagebox.showinfo("Succes", "Operation success!")
+            os.remove(key_path)
             #if it works well, the frontend should close and the
             #real banking app should open showing the profile of the user
             #!!!TO IMPLEMENT!!!
