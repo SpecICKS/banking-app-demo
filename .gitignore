@@ -1,0 +1,19 @@
+# --- PYTHON JUNK ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- JAVA COMPILED JUNK ---
+*.class
+# Ignoram tot ce e in bin, DAR pastram fisierul .gitkeep ca folderul bin sa existe pe Git
+java_backend/bin/*
+!java_backend/bin/.gitkeep
+
+# --- IDE / EDITOR JUNK (IntelliJ & VS Code) ---
+.idea/
+*.iml
+.vscode/
+
+# --- DATE TEMPORARE / CREDENTIALE ---
+key.txt
+**/key.txt
