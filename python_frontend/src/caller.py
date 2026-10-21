@@ -1,29 +1,61 @@
+import logging
 import subprocess
-import os
+from pathlib import Path
 from tkinter import messagebox
 
-def call(debug, key_path):
+logger = logging.getLogger(__name__)
+
+
+def _run(debug, key_path, java_class_path):
     command = [
         "java",
         "-cp",
-        "../../java_backend/bin", #controller path
-        "Controller.Controller", #package.class
-        key_path
+        str(java_class_path),
+        "controller.Controller",
+        str(key_path),
     ]
     try:
-        response = subprocess.run(command, capture_output=True, text=True)
-        if debug == True:
-            print("LOG JAVA:", response.stdout)
+        response = subprocess.run(
+            command,
+            cwd=Path(java_class_path).parents[1],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        Path(key_path).unlink(missing_ok=True)
+        if debug:
+            logger.debug(
+                "Backend completed with exit code %d; stdout=%r; stderr=%r",
+                response.returncode,
+                response.stdout.strip(),
+                response.stderr.strip(),
+            )
 
-        if response.returncode != 0:
-            messagebox.showerror("Error:", f"{response.stderr}")
-        else:
-            #for the moment:
-            messagebox.showinfo("Succes", "Operation success!")
-            os.remove(key_path)
-            #if it works well, the frontend should close and the
-            #real banking app should open showing the profile of the user
-            #!!!TO IMPLEMENT!!!
-    except Exception as e:
-        if debug == True:
-            print(f"Fatal Error: {e}")
+        return response
+    except OSError as error:
+        Path(key_path).unlink(missing_ok=True)
+        if debug:
+            logger.exception("Unable to start the Java backend")
+        messagebox.showerror("Error", f"Could not start the Java backend: {error}")
+        return None
+
+
+def call(debug, key_path, java_class_path):
+    response = _run(debug, key_path, java_class_path)
+    if response is None:
+        return False
+    if response.returncode != 0:
+        messagebox.showerror("Error", response.stderr.strip() or "The backend rejected the request.")
+    elif debug:
+        logger.info("Backend accepted the request")
+    return response.returncode == 0
+
+
+def call_with_output(debug, key_path, java_class_path):
+    response = _run(debug, key_path, java_class_path)
+    if response is None:
+        return False, ""
+    if response.returncode != 0:
+        messagebox.showerror("Error", response.stderr.strip() or "The backend rejected the request.")
+        return False, ""
+    return True, response.stdout

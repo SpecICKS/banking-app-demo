@@ -7,11 +7,11 @@ endif
 all: compile run
 
 compile:
-	@javac -d java_backend/bin java_backend/src/Read/Key.java java_backend/src/Controller/Controller.java
+	javac -d java_backend/bin java_backend/src/**/*.java
 
 run:
-	@cd python_frontend/src && $(PYTHON) launch.py
+	cd python_frontend/src && $(PYTHON) launch.py
 
-# Curățarea fișierelor compilate (opțional, util pentru reset)
+# Clean up compiled Java classes (optional, useful for reset)
 clean:
 	@rm -rf java_backend/bin/*

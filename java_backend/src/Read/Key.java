@@ -1,30 +1,51 @@
-package Read;
+package read;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 public class Key {
     public String username = "";
     public String password = "";
     public String type = "";
+    public String sender = "";
+    public String receiver = "";
+    public String amount = "";
+    public String description = "";
+
     public boolean readData(String path) {
-        try {
-            Scanner scan = new Scanner(new File(path));
-            if(scan.hasNextLine()) {
-                type = scan.nextLine();
+        try (Scanner scan = new Scanner(new File(path), StandardCharsets.UTF_8)) {
+            if (!scan.hasNextLine()) {
+                throw new IllegalArgumentException("Missing action");
             }
-            if (scan.hasNextLine()) {
-                username = scan.nextLine();
+            type = scan.nextLine();
+            if (!scan.hasNextLine()) {
+                throw new IllegalArgumentException("Missing username");
             }
-            if (scan.hasNextLine()) {
-                password = scan.nextLine();
+            username = scan.nextLine();
+            if (!scan.hasNextLine()) {
+                throw new IllegalArgumentException("Missing password");
             }
-            scan.close();
-            System.out.println("Success Reading!");
+            password = scan.nextLine();
+            if (type.equals("RECORD_TRANSACTION")) {
+                sender = readRequired(scan, "sender");
+                receiver = readRequired(scan, "receiver");
+                amount = readRequired(scan, "amount");
+                description = readRequired(scan, "description");
+            }
+            System.out.println("Credential request parsed successfully.");
             return true;
-        } catch (Exception e) {
-            System.err.println("Err: No such file found");
+        } catch (IOException | IllegalArgumentException e) {
+            System.err.println("Credential request parsing failed: " + e.getMessage());
             return false;
         }
+    }
+
+    private static String readRequired(Scanner scan, String field) {
+        if (!scan.hasNextLine()) {
+            throw new IllegalArgumentException("Missing " + field);
+        }
+        return scan.nextLine();
     }
 }

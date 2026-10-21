@@ -5,7 +5,7 @@ __pycache__/
 
 # --- JAVA COMPILED JUNK ---
 *.class
-# Ignoram tot ce e in bin, DAR pastram fisierul .gitkeep ca folderul bin sa existe pe Git
+# Ignore the compiled binaries, but keep the .gitkeep file to ensure the bin directory is tracked
 java_backend/bin/*
 !java_backend/bin/.gitkeep
 
@@ -13,7 +13,3 @@ java_backend/bin/*
 .idea/
 *.iml
 .vscode/
-
-# --- DATE TEMPORARE / CREDENTIALE ---
-key.txt
-**/key.txt
