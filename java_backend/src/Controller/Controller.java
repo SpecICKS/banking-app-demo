@@ -14,7 +14,8 @@ public class Controller {
             System.err.println("Invalid backend arguments: expected one credentials-file path.");
             System.exit(2);
         }
-        if (!data.readData(args[0])) {
+        boolean debug = Boolean.parseBoolean(System.getProperty("backend.debug", "false"));
+        if (!data.readData(args[0], debug)) {
             System.exit(1);
         }
         try {
@@ -22,11 +23,8 @@ public class Controller {
                 DataHandler.registerUser(data.username, data.password);
                 System.out.println("Registration completed successfully.");
             } else if (data.type.equals("LOGIN")) {
-                if (!DataHandler.authenticate(data.username, data.password)) {
-                    System.err.println("Authentication failed: invalid username or password.");
-                    System.exit(4);
-                }
-                System.out.println("Authentication completed successfully.");
+                System.out.println("SESSION|" + DataHandler.createSession(
+                        data.username, data.password));
             } else if (data.type.equals("RECORD_TRANSACTION")) {
                 DataHandler.recordTransaction(data.username, data.password,
                         new Transaction(data.sender, data.receiver,
@@ -42,6 +40,23 @@ public class Controller {
                             + "|" + transaction.getAmount()
                             + "|" + transaction.getDescription());
                 }
+            } else if (data.type.equals("RECORD_TRANSACTION_SESSION")) {
+                DataHandler.recordTransactionWithSession(data.username, data.token,
+                        new Transaction(data.sender, data.receiver,
+                                Double.parseDouble(data.amount), java.time.Instant.now(),
+                                data.description));
+            } else if (data.type.equals("GET_TRANSACTIONS_SESSION")) {
+                List<Transaction> transactions = DataHandler.getTransactionsWithSession(
+                        data.username, data.token);
+                for (Transaction transaction : transactions) {
+                    System.out.println("TRANSACTION|" + transaction.getTimestamp()
+                            + "|" + transaction.getSender()
+                            + "|" + transaction.getReceiver()
+                            + "|" + transaction.getAmount()
+                            + "|" + transaction.getDescription());
+                }
+            } else if (data.type.equals("LOGOUT_SESSION")) {
+                DataHandler.revokeSession(data.username, data.token);
             } else {
                 System.err.println("Credential request rejected: unsupported action '" + data.type + "'.");
                 System.exit(2);

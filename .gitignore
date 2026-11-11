@@ -5,6 +5,7 @@ __pycache__/
 
 # --- JAVA COMPILED JUNK ---
 *.class
+sessions.txt
 # Ignore the compiled binaries, but keep the .gitkeep file to ensure the bin directory is tracked
 java_backend/bin/*
 !java_backend/bin/.gitkeep

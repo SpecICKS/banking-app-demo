@@ -8,13 +8,14 @@ import java.util.Scanner;
 public class Key {
     public String username = "";
     public String password = "";
+    public String token = "";
     public String type = "";
     public String sender = "";
     public String receiver = "";
     public String amount = "";
     public String description = "";
 
-    public boolean readData(String path) {
+    public boolean readData(String path, boolean debug) {
         try (Scanner scan = new Scanner(new File(path), StandardCharsets.UTF_8)) {
             if (!scan.hasNextLine()) {
                 throw new IllegalArgumentException("Missing action");
@@ -28,13 +29,18 @@ public class Key {
                 throw new IllegalArgumentException("Missing password");
             }
             password = scan.nextLine();
-            if (type.equals("RECORD_TRANSACTION")) {
+            if (type.endsWith("_SESSION")) {
+                token = password;
+            }
+            if (type.equals("RECORD_TRANSACTION") || type.equals("RECORD_TRANSACTION_SESSION")) {
                 sender = readRequired(scan, "sender");
                 receiver = readRequired(scan, "receiver");
                 amount = readRequired(scan, "amount");
                 description = readRequired(scan, "description");
             }
-            System.out.println("Credential request parsed successfully.");
+            if (debug) {
+                System.err.println("DEBUG: credential request parsed successfully");
+            }
             return true;
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Credential request parsing failed: " + e.getMessage());
